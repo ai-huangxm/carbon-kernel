@@ -1,39 +1,93 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon</groupId>
-    <artifactId>carbon</artifactId>
-    <packaging>pom</packaging>
-    <version>4.4.3</version>
-    <name>WSO2 Carbon - Aggregate Pom</name>
-    <description>WSO2 Carbon Platform with all its components, features and products
-    </description>
-    <url>http://wso2.org</url>
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>1</version>
+        <version>2</version>
     </parent>
 
-    <scm>
-        <url>https://github.com/wso2/carbon4-kernel.git</url>
-        <developerConnection>scm:git:https://github.com/wso2/carbon4-kernel.git</developerConnection>
-        <connection>scm:git:https://github.com/wso2/carbon4-kernel.git</connection>
-        <tag>v4.4.3-RC3</tag>
-    </scm>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.wso2.carbon</groupId>
+    <artifactId>carbon-kernel</artifactId>
+    <packaging>pom</packaging>
+    <version>5.1.0-SNAPSHOT</version>
+    <name>WSO2 Carbon Kernel - Aggregate Pom</name>
+    <description>WSO2 Carbon Kernel Aggregate Pom</description>
+    <url>http://wso2.com</url>
 
-    <!--Moved the modules out of default profile  and disabled all the profiles-->
+    <prerequisites>
+        <maven>3.0.0</maven>
+    </prerequisites>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>parent</module>
+                <module>archetypes</module>
+                <module>launcher</module>
+                <module>core</module>
+                <module>tests</module>
+                <module>features</module>
+                <module>tools</module>
+                <module>distribution</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <scm>
+        <url>https://github.com/wso2/carbon-kernel.git</url>
+        <developerConnection>scm:git:https://github.com/wso2/carbon-kernel.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/carbon-kernel.git</connection>
+        <tag>HEAD</tag>
+    </scm>
 
     <build>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <version>2.1</version>
+                <version>${maven.wagon.ssh.version}</version>
             </extension>
         </extensions>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${maven.findbugs.plugin.version}</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -44,69 +98,28 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <aggregate>true</aggregate>
-                    <excludePackageNames>*.internal.*</excludePackageNames>
-                    <show>public</show>
-                    <nohelp>true</nohelp>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>docs</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>parent</module>
-                <module>service-stubs</module>
-                <module>core</module>
-                <module>features</module>
-                <module>samples</module>
-                <module>distribution</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>maven-release</id>
-            <modules>
-                <module>service-stubs</module>
-                <module>parent</module>
-                <module>core</module>
-                <module>features</module>
-                <module>samples</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>builder</id>
-            <activation>
-                <property>
-                    <name>builder</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <modules>
-                <module>service-stubs</module>
-                <module>parent</module>
-                <module>core</module>
-                <module>features</module>
-                <module>samples</module>
-                <module>distribution</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>sonar-profile</id>
-            <activation>
-                <property>
-                    <name>bamboo</name>
-                    <value>sonar</value>
-                </property>
-            </activation>
-            <modules>
-                <module>core</module>
-            </modules>
-        </profile>
-    </profiles>
+
+    <properties>
+        <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
+        <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
+        <maven.findbugs.plugin.version>3.0.3</maven.findbugs.plugin.version>
+    </properties>
+
 </project>
